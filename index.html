@@ -485,17 +485,17 @@ footer {
 </div>
 
 <script>
-  /* ── state ── */
-  var pendingUrl = null;
+  /* ── state — guardamos la URL en un atributo del modal para evitar perderla ── */
 
   /* ── navigate in same tab ── */
   function openFree(url) {
-    window.location.href = url;
+    window.location.assign(url);
   }
 
   /* ── show modal for protected tools ── */
   function openProtected(url, card) {
-    pendingUrl = url;
+    // Store URL directly in the modal element as data attribute
+    document.getElementById('modalBox').setAttribute('data-target-url', url);
     document.getElementById('keyInput').value = '';
     document.getElementById('modalError').textContent = '';
     document.getElementById('modalOverlay').classList.add('active');
@@ -505,7 +505,7 @@ footer {
   /* ── close modal ── */
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
-    pendingUrl = null;
+    document.getElementById('modalBox').removeAttribute('data-target-url');
   }
 
   /* ── prevent closing by clicking outside ── */
@@ -522,18 +522,23 @@ footer {
   function confirmKey() {
     var val = document.getElementById('keyInput').value;
     var SECRET = 'GrupoG0%2026';
-    if (val === SECRET) {
+    // Read the target URL directly from the modal element
+    var targetUrl = document.getElementById('modalBox').getAttribute('data-target-url');
+
+    if (val === SECRET && targetUrl) {
       closeModal();
-      window.location.href = pendingUrl;
+      window.location.assign(targetUrl);
+    } else if (!targetUrl) {
+      document.getElementById('modalError').textContent = 'Error: URL no definida. Cierra e intenta de nuevo.';
     } else {
       var inp = document.getElementById('keyInput');
       var err = document.getElementById('modalError');
       err.textContent = 'Clave incorrecta. Inténtalo de nuevo.';
       inp.classList.remove('shake');
-      void inp.offsetWidth; /* reflow to restart animation */
+      void inp.offsetWidth;
       inp.classList.add('shake');
       inp.value = '';
-      setTimeout(function(){ inp.classList.remove('shake'); }, 400);
+      setTimeout(function(){ inp.focus(); inp.classList.remove('shake'); }, 400);
     }
   }
 
