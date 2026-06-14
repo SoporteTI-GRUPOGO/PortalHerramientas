@@ -370,7 +370,7 @@ footer {
 <!-- GRID -->
 <section class="grid-section">
   <div class="section-meta">
-    <span class="section-count" id="countLabel">4 herramientas disponibles</span>
+    <span class="section-count" id="countLabel">5 herramientas disponibles</span>
   </div>
 
   <div class="tools-grid" id="toolsGrid">
@@ -459,6 +459,27 @@ footer {
       </div>
     </div>
 
+    <!-- 5 · Directorio de Contactos — libre -->
+    <div class="tool-card" onclick="openFree('https://soporteti-grupogo.github.io/DirectorioContactos/')"
+         data-title="Directorio de Contactos" data-tags="directorio contactos telefonos extensiones empleados"
+         style="--c-glow:rgba(150,100,220,0.08);--i-bg:rgba(150,100,220,0.11);--i-border:rgba(150,100,220,0.22);--i-color:#a888e8;--t-bg:rgba(150,100,220,0.1);--t-color:#b298ec;--t-border:rgba(150,100,220,0.22);--b-color:#a888e8;--b-bg:rgba(150,100,220,0.1);--b-border:rgba(150,100,220,0.22);--b-hover:rgba(150,100,220,0.2);--b-hborder:rgba(150,100,220,0.4);">
+      <div class="card-top">
+        <div class="card-icon">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+        </div>
+        <span class="card-tag">Directorio</span>
+      </div>
+      <div class="card-title">Directorio de Contactos</div>
+      <div class="card-desc">Consulta los contactos, extensiones y datos de los colaboradores de Grupo GO.</div>
+      <div class="card-footer">
+        <span class="card-url">github.io/DirectorioContactos</span>
+        <button class="btn-open">
+          Abrir
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </button>
+      </div>
+    </div>
+
     <div class="empty-state" id="emptyState">No se encontraron herramientas que coincidan.</div>
   </div>
 </section>
@@ -485,17 +506,17 @@ footer {
 </div>
 
 <script>
-  /* ── state — guardamos la URL en un atributo del modal para evitar perderla ── */
+  /* ── state ── */
+  var pendingUrl = null;
 
   /* ── navigate in same tab ── */
   function openFree(url) {
-    window.location.assign(url);
+    window.location.href = url;
   }
 
   /* ── show modal for protected tools ── */
   function openProtected(url, card) {
-    // Store URL directly in the modal element as data attribute
-    document.getElementById('modalBox').setAttribute('data-target-url', url);
+    pendingUrl = url;
     document.getElementById('keyInput').value = '';
     document.getElementById('modalError').textContent = '';
     document.getElementById('modalOverlay').classList.add('active');
@@ -505,7 +526,7 @@ footer {
   /* ── close modal ── */
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
-    document.getElementById('modalBox').removeAttribute('data-target-url');
+    pendingUrl = null;
   }
 
   /* ── prevent closing by clicking outside ── */
@@ -522,23 +543,18 @@ footer {
   function confirmKey() {
     var val = document.getElementById('keyInput').value;
     var SECRET = 'GrupoG0%2026';
-    // Read the target URL directly from the modal element
-    var targetUrl = document.getElementById('modalBox').getAttribute('data-target-url');
-
-    if (val === SECRET && targetUrl) {
+    if (val === SECRET) {
       closeModal();
-      window.location.assign(targetUrl);
-    } else if (!targetUrl) {
-      document.getElementById('modalError').textContent = 'Error: URL no definida. Cierra e intenta de nuevo.';
+      window.location.href = pendingUrl;
     } else {
       var inp = document.getElementById('keyInput');
       var err = document.getElementById('modalError');
       err.textContent = 'Clave incorrecta. Inténtalo de nuevo.';
       inp.classList.remove('shake');
-      void inp.offsetWidth;
+      void inp.offsetWidth; /* reflow to restart animation */
       inp.classList.add('shake');
       inp.value = '';
-      setTimeout(function(){ inp.focus(); inp.classList.remove('shake'); }, 400);
+      setTimeout(function(){ inp.classList.remove('shake'); }, 400);
     }
   }
 
